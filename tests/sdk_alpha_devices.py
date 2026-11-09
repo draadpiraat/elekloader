@@ -522,7 +522,7 @@ class Digitakt1(Device):
     key, stock_env = 'digitakt-mk1', 'ELEKLOADER_STOCK_154'
     track_count = 8
 
-    features = frozenset(('knob_ccs_past_h',))
+    features = frozenset(('knob_ccs_past_h', 'clicks'))
     sound_without_render = False
     KEYS = {0: '9', 1: '2', 2: '10', 3: '3', 4: '11', 5: '12', 6: '5', 7: '13',
             8: '6', 9: '14', 10: '7', 11: '15', 12: '16'}
@@ -659,7 +659,7 @@ class Digitakt1(Device):
 class Digitone1(Device):
     key, stock_env = 'digitone-mk1', 'ELEKLOADER_STOCK_DN1_144'
     track_count = 4
-    features = frozenset(('polyphony', 'audio_modulation', 'midi_in'))
+    features = frozenset(('polyphony', 'audio_modulation', 'midi_in', 'clicks'))
     sound_without_render = True
     KEYS = Digitakt1.KEYS
 
@@ -907,7 +907,7 @@ class Digitone2(Device):
     track_count = 16
     lfo_count = 3
     settings_key = 'SETTINGS'
-    features = frozenset(('render', 'polyphony', 'audio_modulation', 'trk_setup'))
+    features = frozenset(('render', 'polyphony', 'audio_modulation', 'trk_setup', 'clicks'))
     sound_without_render = True     # FM TONE plays an SDK machine without a render
     KEYS = Digitakt1.KEYS           # KEYBOARD's chromatic keys, from the octave's C
 

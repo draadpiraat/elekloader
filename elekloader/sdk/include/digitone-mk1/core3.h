@@ -299,6 +299,13 @@ extern uint32_t fw_param_uirec(int32_t id);
  * step 256, acceleration in); knob 0-7 for A-H. Nonzero takes it: the stock neither edits the sound nor
  * shows its pop-up. The UI task. */
 typedef int32_t (*ev_param_turn_fn)(void *view, int32_t id, int32_t delta, int32_t knob);
+/* 5.4: the step a knob turn on a parameter page adds, into the track's sound or, with GRID REC's steps held,
+ * into their p-locks: asked first, before ev_param_turn. Each handler gets the step the one before it left
+ * and returns the step to add (delta itself to leave it; 0 adds nothing). view, id, delta and knob are
+ * ev_param_turn's; value is what the turn starts from, as the page's getter answers (8.8): the held step's
+ * lock with steps held, else the sound's. The stock then edits, clamps and shows its pop-up as for any
+ * turn. The UI task. */
+typedef int32_t (*ev_param_step_fn)(void *view, int32_t id, int32_t delta, int32_t knob, int32_t value);
 /* The value a page shows on a knob for parameter id, asked every frame it draws its knobs. Nonzero answers:
  * *value (8.8) is shown, drawn inverted as a held step's p-lock when *locked is 1 (core clears it before
  * asking). Otherwise the stock answers: the held steps' lock, or the sound's value. Core also asks where the

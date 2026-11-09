@@ -381,12 +381,14 @@ const u32 = (...words: number[]): Uint8Array => {
   return out
 }
 
-/** An SDK machine's knob map for the dispatcher: the count, then per knob min, span / RAW_MAX and span % RAW_MAX. */
+/** An SDK machine's knob map for the dispatcher: the count, then per knob min, span / RAW_MAX, span % RAW_MAX
+ * and m: 512 * values for a knob of up to 128 values (min + (((raw + 128) & ~255) * m) >> 24), else 0
+ * (sharc.py's knob_map). */
 export function knobMap(knobs: [number, number][]): Uint8Array {
   const words = [knobs.length]
   for (const [lo, hi] of knobs) {
     const span = ((hi - lo) % 2 ** 32 + 2 ** 32) % 2 ** 32
-    words.push((lo % 2 ** 32 + 2 ** 32) % 2 ** 32, Math.floor(span / RAW_MAX), span % RAW_MAX)
+    words.push((lo % 2 ** 32 + 2 ** 32) % 2 ** 32, Math.floor(span / RAW_MAX), span % RAW_MAX, span < 128 ? 512 * (span + 1) : 0)
   }
   return u32(...words)
 }

@@ -34,7 +34,10 @@
         .section .run, "ax"
         .globl  core_param_turn
 core_param_turn:
-        move.l  4(%sp), -(%sp)          | 5.1: a lane parameter's is core's (lanes.c)
+        tst.l   ev_param_step           | 5.4: the step first, for the sound and the held steps' locks alike
+        beq.s   0f
+        bsr.w   param_step
+0:      move.l  4(%sp), -(%sp)          | 5.1: a lane parameter's is core's (lanes.c)
         move.l  %d3, -(%sp)
         move.l  %d2, -(%sp)
         move.l  %a2, -(%sp)
@@ -70,6 +73,40 @@ core_param_turn:
 2:      movea.l (%sp)+, %a3
         moveq   #0, %d0                 | no steps held: the stock edits the sound
 9:      rts
+
+| ---- ev_param_step: the step a turn adds (5.4) ----------------------------
+| From core_param_turn, before the held-steps question, so its answer is the
+| step the stock adds to the sound or to the held steps' locks (d3, which the
+| knob handler uses after the call). Each handler in turn gets the step the
+| one before it left: f(view, id, delta, knob, value) -> the step to add
+| (delta itself to leave it). value is what the turn starts from, as the
+| page's getter answers (VALUE_FN, 8.8): the held step's lock with steps
+| held, else the sound's. Uses d0, d1, a0 and a1, as HELD_STEPS may.
+param_step:
+        move.l  %a3, -(%sp)
+        clr.l   -(%sp)                  | the getter's locked byte, then the value
+        pea     (%sp)
+        move.l  %d2, -(%sp)             | the id
+        move.l  %a2, -(%sp)             | the view
+        jsr     VALUE_FN
+        lea     12(%sp), %sp
+        move.l  %d0, (%sp)
+        lea     ev_param_step, %a3
+1:      move.l  (%a3)+, %d0
+        beq.s   2f
+        move.l  (%sp), -(%sp)           | the value
+        move.l  %d4, -(%sp)             | the knob
+        move.l  %d3, -(%sp)             | the step
+        move.l  %d2, -(%sp)             | the id
+        move.l  %a2, -(%sp)             | the view
+        movea.l %d0, %a0
+        jsr     (%a0)
+        lea     20(%sp), %sp
+        move.l  %d0, %d3
+        bra.s   1b
+2:      addq.l  #4, %sp
+        movea.l (%sp)+, %a3
+        rts
 
 | ---- ev_param_value: the value a page shows for a parameter ---------------
 | At VALUE_FN's entry (0x40043dd0, by jmp; its first two instructions are

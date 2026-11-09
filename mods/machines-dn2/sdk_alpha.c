@@ -188,6 +188,16 @@ uint32_t dn2_active_type(uint32_t filter)
     return t < 16 ? dn2_sounds[SOUND_SIZE * t + SOUND_TYPE + (filter ? 1 : 0)] : 0;
 }
 
+/* ev_param_step (core-dn2 0.5): a turn of the active track's SDK knob that sets clicks moves it click by
+ * click, into the sound or the held trigs' locks alike; every other turn keeps the stock's step. */
+int32_t dn2_sdk_param_step(void *view, int32_t code, int32_t delta, int32_t knob, int32_t value)
+{
+    const struct sdk_alpha_entry *e = dn2_sdk_active();
+    uint32_t k = (uint32_t)code - (ROWS + SDK_ROW);
+    (void)view; (void)knob;
+    return e && k < e->count ? sdk_alpha_step(&e->machine->knobs[k], value, delta) : delta;
+}
+
 /* Knob `knob`'s default, raw 8.8, for the active track's machine; -1 when it has no such knob. */
 int32_t dn2_sdk_default(uint32_t knob)
 {

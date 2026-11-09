@@ -267,7 +267,7 @@ class PlaceTests(unittest.TestCase):
         self.assertEqual((sdk[0], sdk[2]), (pc['a-synths'] + 2, 256))
         self.assertIn((sdk[1], 16 * 256), state)
         self.assertEqual(loads[sdk[3]], sharc.knob_map([(-12, 12), (0, 2 ** 31 - 1)]))
-        self.assertEqual(struct.unpack('<7I', loads[sdk[3]]), (2, 2 ** 32 - 12, 0, 24, 0, 66052, 1023))
+        self.assertEqual(struct.unpack('<9I', loads[sdk[3]]), (2, 2 ** 32 - 12, 0, 24, 512 * 25, 0, 66052, 1023, 0))
         self.assertEqual((mk2[0], mk2[2], mk2[3]), (pc['a-synths'] + 2, 12, 0))
         self.assertIn((mk2[1], 16 * 12), state)
         self.assertEqual(mk2b, (pc['c-synth'] + 2, 0, 0, 0))       # no state: a null pointer

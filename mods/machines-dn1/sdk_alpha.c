@@ -181,6 +181,13 @@ static int32_t sdk_knob(const struct dnm_machine *m, int32_t k)
     return -1;
 }
 
+/* SYN knob k's step for machine m: sdk_alpha_step for an SDK knob, else delta. */
+int32_t dnm_sdk_step(const struct dnm_machine *m, int32_t k, int32_t value, int32_t delta)
+{
+    int32_t id = sdk_knob(m, k);
+    return id < 0 ? delta : sdk_alpha_step(&entry_of(m)->machine->knobs[id], value, delta);
+}
+
 const char *dnm_sdk_label(const struct dnm_machine *m, int32_t k)
 {
     int32_t id = sdk_knob(m, k);

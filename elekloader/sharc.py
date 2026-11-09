@@ -418,12 +418,14 @@ def _parcels(code):
 
 
 def knob_map(knobs):
-    """An SDK machine's knob map for the dispatcher: the count, then per knob min, span / RAW_MAX and
-    span % RAW_MAX, so that min + q * raw + (r * raw + RAW_MAX / 2) / RAW_MAX is sdk_alpha_map."""
+    """An SDK machine's knob map for the dispatcher: the count, then per knob min, span / RAW_MAX,
+    span % RAW_MAX and m, so that sdk_alpha_map is min + (((raw + 128) & ~255) * m) >> 24 for a knob of up
+    to 128 values (m = 512 * values: raw's nearest position * values / 128), else (m = 0)
+    min + q * raw + (r * raw + RAW_MAX / 2) / RAW_MAX."""
     words = [len(knobs)]
     for lo, hi in knobs:
         span = (hi - lo) % (1 << 32)
-        words += [lo % (1 << 32), span // RAW_MAX, span % RAW_MAX]
+        words += [lo % (1 << 32), span // RAW_MAX, span % RAW_MAX, 512 * (span + 1) if span < 128 else 0]
     return struct.pack('<%dI' % len(words), *words)
 
 
